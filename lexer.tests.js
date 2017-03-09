@@ -1,5 +1,7 @@
 var Lexer = require('./lexer');
-var Expect = require('chai').expect;
+var Chai = require('chai');
+var Expect = Chai.expect;
+var diff = require('diff');
 
 var reset = "\x1b[0m";
 var bright = "\x1b[1m%s"		+reset;
@@ -113,33 +115,9 @@ var tests = [
 		Expect(results).to.eql(expected)
 	},
 	function TestSomething(){
-		
+		// think of something
 	}];
-/*
-function assertEqual(a, b, resultAsBool){
-	var pass = true;
-	if(typeof a == "object" && typeof b == "object"){
-		for(var i in a){
-			if(a[i] && b[i]){
-				pass = (pass && assertEqual(a[i], b[i], true));
-			} else pass = false;
-			
-			if(!pass)
-				break;
-		}
-	}else if (typeof a == typeof b){
-		pass = (a === b);
-	}else
-		pass = false;
-	
-	if(resultAsBool)
-		return pass;
-	else if(pass)
-		return fgGreen.replace('%s', "Passed");
-	else
-		return fgRed.replace('%s', "Failed");
-}
-*/
+
 failed = 0;
 for(var t of tests){
 	var error;
@@ -148,7 +126,6 @@ for(var t of tests){
 		t();
 		passed = true;
 	}catch(e){
-		console.log(e);
 		passed = false;
 		failed ++;
 		error = e;
@@ -158,14 +135,12 @@ for(var t of tests){
 		n += '.';
 	n = t.name + fgBlack.replace('%s', n);
 	
-	if(passed)
-		console.log(n, fgGreen.replace('%s', "✓ Passed"));
-	else
-		console.log(n, fgRed.replace('%s', "✗ Failed"), "\nActual:", error.expected, "\nExpected:", error.actual);
+	if(passed) console.log(n, fgGreen.replace('%s', "✓ Passed"));
+	else console.log(n, bgRed.replace('%s', "✗ Failed"), error.message/*, "\nActual:", error.expected, "\nExpected:", error.actual*/);
 }
 console.log('')
 if(!failed)
-	console.log(fgGreen, "✓ Tests completed successfully.")
+	console.log(fgGreen, `✓ ${tests.length} Tests completed successfully.`)
 else
-	console.log(bgRed, "✗ Tests completed with "+failed+" errors.")
+	console.log(bgRed, `✗ ${failed}/${tests.length} Tests completed with errors.`)
 console.log('');

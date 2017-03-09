@@ -9,7 +9,10 @@
   },
   "author": "Dmitri Kolytchev",
   "license": "MIT",
-  "dependencies": {
-    "chai": "^3.5.0"
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-diff": "^1.0.1",
+    "diff": "^3.2.0"
   }
 }
