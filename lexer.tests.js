@@ -27,8 +27,8 @@ var bgMagenta = "\x1b[45m%s"	+reset;
 var bgCyan = "\x1b[46m%s"		+reset;
 var bgWhite = "\x1b[47m%s"		+reset;
 
-var tests =
-	[function TestKeywords(){
+var tests = [
+	function TestKeywords(){
 		var input = "Class {}";
 		var parser = Lexer.parse(input)
 		var expected = [
@@ -111,6 +111,9 @@ var tests =
 			results.push(parser.next());
 		}
 		Expect(results).to.eql(expected)
+	},
+	function TestSomething(){
+		
 	}];
 /*
 function assertEqual(a, b, resultAsBool){

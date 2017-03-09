@@ -159,7 +159,7 @@ var Tokenizer = (function(){
 			return new Token("operator", op);
 		}
 		
-		return null;
+		throw new Error(`Unintelligible token on line {this.line} column {this.col}`);
 	}
 	
 	Tokenizer.prototype.peek = function(){
