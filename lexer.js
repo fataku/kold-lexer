@@ -53,7 +53,7 @@ var InputStream = (function(){
 		for(var i = 0; i<this.col-1; i++)
 			pointer += "-";
 		pointer += "^";
-		console.error("Error (line "+this.line+", column "+this.col+") : \n" + this.lastLine.trim() + "\n" + pointer + "\n" + msg);
+		console.error(`Error (line {this.line}, column {this.col}) : \n {this.lastLine} \n{pointer}\n{msg}`);
 	}
 	return InputStream;
 })();
@@ -97,8 +97,8 @@ var Tokenizer = (function(){
 		if(this.stringChars.test(ch)){ // is a string
 			var read = true;
 			var string = "";
-			var delimiter = new RegExp("[^"+ch+"]");
-			var isEscaped = new RegExp("\\\\"+ch+"$");
+			var delimiter = new RegExp(`[^${ch}]`);
+			var isEscaped = new RegExp(`\\\\${ch}$`);
 			//string += this.input.next();
 			this.input.next();
 			while(read){
@@ -106,6 +106,10 @@ var Tokenizer = (function(){
 				string += fragment; // read til matching unescaped string delimiter
 				read = isEscaped.test(fragment + this.input.peek());
 				if(read) string += this.input.next();
+				if(this.input.eof()){
+					var err = `File ends before string is closed on line ${this.input.line} column ${this.input.col}`;
+					throw new Error(err);
+				}
 			}
 			this.input.next();
 			//string += this.input.next();
@@ -159,7 +163,7 @@ var Tokenizer = (function(){
 			return new Token("operator", op);
 		}
 		
-		throw new Error(`Unintelligible token on line {this.line} column {this.col}`);
+		throw new Error(`Unintelligible token on line ${this.input.line} column ${this.input.col}`);
 	}
 	
 	Tokenizer.prototype.peek = function(){

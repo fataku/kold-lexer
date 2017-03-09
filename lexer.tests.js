@@ -148,6 +148,7 @@ for(var t of tests){
 		t();
 		passed = true;
 	}catch(e){
+		console.log(e);
 		passed = false;
 		failed ++;
 		error = e;
@@ -167,4 +168,4 @@ if(!failed)
 	console.log(fgGreen, "✓ Tests completed successfully.")
 else
 	console.log(bgRed, "✗ Tests completed with "+failed+" errors.")
-console.log(' ');
+console.log('');
