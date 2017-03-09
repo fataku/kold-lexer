@@ -73,12 +73,12 @@ var Tokenizer = (function(){
 	function Tokenizer(inputStream){
 		this.input = inputStream;
 		this.keywords = ["Class", "+", "-", "~", "if", "else", "for", "while", "true", "false", "undefined", "null"];
-		this.operators = /[+-/*|^<>&%=~]{1,2}/i;
-		this.numChars = /[0-9\.]/;
+		this.operators = /[+\-/*|\^<>&%=~]{1,2}/i;
+		this.numChars = /[0-9]/;
 		this.stringChars = /['"`]/;
 		this.idChars = /[a-z0-9\$_&]/i;
 		this.declarationChars = /[:]/;
-		this.puncChars = /[,;!\{\}\[\]()]/i;
+		this.puncChars = /[,;!\{\}\[\]()\.]/i;
 		this.isBuilding = true;
 	}
 	
@@ -99,15 +99,17 @@ var Tokenizer = (function(){
 			var string = "";
 			var delimiter = new RegExp("[^"+ch+"]");
 			var isEscaped = new RegExp("\\\\"+ch+"$");
-			string += this.input.next();
+			//string += this.input.next();
+			this.input.next();
 			while(read){
 				var fragment = this.readWhile(delimiter);
 				string += fragment; // read til matching unescaped string delimiter
 				read = isEscaped.test(fragment + this.input.peek());
 				if(read) string += this.input.next();
 			}
-			string += this.input.next();
-			// TODO: do some ops on string, like unescaping chars
+			this.input.next();
+			//string += this.input.next();
+			// TODO: do some ops on string, like escaping/unescaping chars
 			return { type:"string", value:string, delimiter:ch };
 		}
 
