@@ -1,4 +1,5 @@
-var Lexer = require('./lexer.js');
+var Lexer = require('./lexer');
+var Expect = require('chai').expect;
 
 var reset = "\x1b[0m";
 var bright = "\x1b[1m%s"		+reset;
@@ -29,21 +30,34 @@ var bgWhite = "\x1b[47m%s"		+reset;
 var tests = [function TestKeywords(){
 	var input = "Class {}";
 	var parser = Lexer.parse(input)
-	
-	var results = [];
 	var expected = [
-		{type:'kw',   value:'Class'},
-		{type:'punc', value:'{'},
-		{type:'punc', value:'}'}
+		{type:'kw',   value:'Class',line:0, column:5},
+		{type:'punc', value:'{',	line:0, column:7},
+		{type:'punc', value:'}',	line:0, column:8}
 	];
-	
+	var results = [];
 	while(!parser.eof()){
 		results.push(parser.next());
 	}
+	Expect(results).to.eql(expected)
 	
-	return assertEqual(expected, results);
+}, function TestComments(){
+	var input = "/* blockComment \n */\n//lel this is the \n beginning of a line."
+	var parser = Lexer.parse(input);
+	var expected = [
+		{ type: 'var', value: 'beginning', line: 3, column: 10 },                                                                                                                  
+		{ type: 'var', value: 'of', line: 3, column: 13 },                                                                                                                         
+		{ type: 'var', value: 'a', line: 3, column: 15 },                                                                                                                          
+		{ type: 'var', value: 'line', line: 3, column: 20 },                                                                                                                       
+		{ type: 'punc', value: '.', line: 3, column: 21 }
+	];
+	var results = [];
+	while(!parser.eof()){
+		results.push(parser.next());
+	}
+	Expect(results).to.eql(expected)
 }];
-
+/*
 function assertEqual(a, b, resultAsBool){
 	var pass = true;
 	if(typeof a == "object" && typeof b == "object"){
@@ -67,7 +81,25 @@ function assertEqual(a, b, resultAsBool){
 	else
 		return fgRed.replace('%s', "Failed");
 }
-
+*/
+failed = 0;
 for(var t of tests){
-	console.log("Running: %s ......... %s", t.name, t());
+	var error;
+	var passed;
+	try{
+		t();
+		passed = true;
+	}catch(e){
+		passed = false;
+		failed ++;
+		error = e;
+	}
+	if(passed)
+		console.log("%s ......... %s", t.name, fgGreen.replace('%s', "✓ Passed"));
+	else
+		console.log("%s ......... %s", t.name, fgRed.replace('%s', "✗ Failed"), "\nActual:", error.actual, "\nExpected:", error.expected);
 }
+if(!failed)
+	console.log(fgGreen, "✓ Tests completed successfully.")
+else
+	console.log(bgRed, "✗ Tests completed with errors.")
