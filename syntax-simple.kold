@@ -1,0 +1,11 @@
+#comment
+alpha = "lol";
+alpha2 = "lol\"";
+beta:string = 'lol2';
+beta2:string = 'lol"2';
+cumberbatch : int = 123;
+dee = 123;
+eee = 123.123;
+figue:float = 123.123;
+
+*/

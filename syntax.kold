@@ -1,0 +1,35 @@
+Class thing {
+	+ publicVar : int = 0; # comment
+	- privateVar : String = "some string"; # also a comment
+	~ protectedVar : Object; #uninitialized object
+	
+	
+	/* block comment */
+	
+	- s = sin(1); # inferred type
+	//toggle-block comment
+	/*/
+	- s = cos(1);
+	//*/ commented end of block
+
+	- formattedString = "this is a formatted string: %0, %1, %2" % ["hi", "I'm", "bob"];
+
+	+ polynomial:int = (a:int, b:int, c:int = 0) => {
+		return a * b + c;
+		for(var i = 0; i<99; i++){
+			# do nothing
+		}
+	}
+	
+	construct(){ # reserved constructor function
+		# stuff happens here
+	}
+	
+	destruct(){ # reserved destructor function
+	
+	}
+	
+	b = "multi
+line
+		string";
+}

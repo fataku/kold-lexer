@@ -1,0 +1,11 @@
+{
+  "name": "kold-lexer",
+  "version": "0.1.0",
+  "description": "A prototype of an object-oriented scripting language",
+  "main": "lexer.js ./syntax.kold",
+  "scripts": {
+    "test": "lexer.tests.js"
+  },
+  "author": "Dmitri Kolytchev",
+  "license": "MIT"
+}
