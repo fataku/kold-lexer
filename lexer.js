@@ -5,12 +5,12 @@ var options = {};
 process.argv.forEach(function (val, index, array) {
 	if(index >= 2){
 		var v;
-		
+
 		if(val.substr(0,2) == ("--")){ // long-form arg
 			v = val.split("=");
 			v[0] = v[0].substr(2);
 			options[v[0]] = v[1] || true;
-			
+
 		}else if(val.substr(0,1) == ("-")){ // short-form arg
 			v = val.substr(1).split('');
 			for(var vv of v){
@@ -30,7 +30,7 @@ var InputStream = (function(){
 		this.input = input;
 		this.lastLine = '';
 	}
-	
+
 	InputStream.prototype.next = function() {
 		var char = this.input.charAt(this.pos++);
 		if(char == "\n")
@@ -39,15 +39,15 @@ var InputStream = (function(){
 		this.lastLine += char;
 		return char;
 	}
-	
+
 	InputStream.prototype.peek = function() {
 		return (this.input.charAt(this.pos));
 	}
-	
+
 	InputStream.prototype.eof = function() {
 		return (this.peek() === "");
 	}
-	
+
 	InputStream.prototype.croak = function(msg) {
 		var pointer = "";
 		for(var i = 0; i<this.col-1; i++)
@@ -57,7 +57,6 @@ var InputStream = (function(){
 	}
 	return InputStream;
 })();
-	
 var Token = (function(){
 	function Token(type, value){
 		this.type = type;
@@ -67,12 +66,11 @@ var Token = (function(){
 	}
 	return Token;
 })();
-
 var Tokenizer = (function(){
-	
+
 	function Tokenizer(inputStream){
 		this.input = inputStream;
-		this.keywords = ["Class", "+", "-", "~", "if", "else", "for", "while", "true", "false", "undefined", "null"];
+		this.keywords = ["Class", "+", "-", "~", "if", "else", "for", "while", "true", "false", "undefined", "null", "in", "of", "typeof", "new", "delete"];
 		this.operators = /[+\-/*|\^<>&%=~]{1,2}/i;
 		this.numChars = /[0-9]/;
 		this.stringChars = /['"`]/;
@@ -80,21 +78,22 @@ var Tokenizer = (function(){
 		this.declarationChars = /[:]/;
 		this.puncChars = /[,;!\{\}\[\]()\.]/i;
 		this.isBuilding = true;
+		this.current = null;
 	}
-	
-	Tokenizer.prototype.next = function(){
+
+	Tokenizer.prototype.readNext = function(){
 		Token.input = this.input;
 		this.readWhile(/\s/i);
 		if(this.input.eof()) return null;
-		
+
 		var ch = this.input.peek();
-		
+
 		if(ch == '#'){
 			this.readWhile(/[^\n]/); // skip to end of line
 			return this.next(); // recurse to next token
 		}
 
-		if(this.stringChars.test(ch)){ // is a string
+		if(this.stringChars.test(ch)){
 			var read = true;
 			var string = "";
 			var delimiter = new RegExp(`[^${ch}]`);
@@ -139,14 +138,14 @@ var Tokenizer = (function(){
 			var decl = this.readWhile(this.idChars);
 			return new Token('type', decl);
 		}
-		
+
 		if(this.operators.test(ch)){
 			var op = this.readWhile(this.operators);
-			
+
 			if(op.substr(0, 2) === "//"){
 				this.readWhile(/[^\n]/);
 				return this.next();
-				
+
 			}else if(op.substr(0, 2) === "/*"){ // read til matching "*/"
 				var skip = true;
 				while(skip){
@@ -157,28 +156,34 @@ var Tokenizer = (function(){
 						return null;
 					}
 				}
- 				this.input.next();
+				this.input.next();
 				return this.next();
 			}
 			return new Token("operator", op);
 		}
-		
+
 		throw new Error(`Unintelligible token on line ${this.input.line} column ${this.input.col}`);
 	}
-	
-	Tokenizer.prototype.peek = function(){
-		
+
+	Tokenizer.prototype.next = function(){
+		var token = this.current;
+		this.current = null;
+		return token || this.readNext();
 	}
-	
+
+	Tokenizer.prototype.peek = function(){
+		return this.current || (this.current = this.next());
+	}
+
 	Tokenizer.prototype.eof = function(){
 		return this.isBuilding && this.input.eof();
 	}
-	
+
 	Tokenizer.prototype.croak = function(msg){
 		this.input.croak(msg)
 		this.isBuilding = false;
 	}
-	
+
 	Tokenizer.prototype.readWhile = function(r){
 		var s = '';
 		while( !this.input.eof() && r.test(this.input.peek()) ){
@@ -186,7 +191,7 @@ var Tokenizer = (function(){
 		}
 		return s;
 	}
-	
+
 	return Tokenizer;
 })();
 var Tokenize = function(text){
@@ -202,9 +207,9 @@ module.exports = {
 if(!module.parent){
 	if(!options.file)
 		return console.log("usage:\nnode lexer.js /path/to/file");
-	
+
 	var tokenizer = Tokenize(String(fs.readFileSync(options.file)));
-	
+
 	while(!tokenizer.eof() && tokenizer.isBuilding){
 		console.log((lastResult = tokenizer.next()));
 	}
